@@ -1,0 +1,145 @@
+/* Base settings */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0; /* light gray background */
+    color: #2c3e50; /* richer, softer dark text for readability */
+    overflow-x: hidden; /* prevent horizontal scroll */
+}
+
+/* Header */
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #ffffff; /* white header */
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Container */
+ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap; /* allows cards to move to next line on small screens */
+    justify-content: center; /* centers cards */
+    gap: 10px; /* consistent spacing between cards */
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+/* Cards */
+li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: #ffffff;
+    border-radius: 5px;
+    padding: 20px;
+    flex: 1 1 100px; /* flexible width: grow, shrink, base 100px */
+    max-width: 100px; /* cap width for larger screens */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Card hover and active states */
+li:hover {
+    background-color: #e0f2f1;
+    border-color: #009688;
+}
+
+li.active {
+    background-color: #b2dfdb;
+    border-color: #00796b;
+}
+
+/* Link inside card */
+li a {
+    text-decoration: none; /* remove underline */
+    color: #555555; /* neutral gray */
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+li a:hover {
+    color: #009688; /* text color accent on hover */
+}
+
+/* Centering the main gameplay area */
+main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.equation-container {
+    font-size: 3.5rem; /* Slightly reduced for multi-line harmony */
+    font-weight: bold;
+    margin-bottom: 70px;
+    line-height: 1.4;  /* Ensures the two lines don't feel claustrophobic */
+    text-align: center;
+}
+
+.blank {
+    display: inline-block;
+    min-width: 60px;
+    border-bottom: 4px solid #34495e;
+    text-align: center;
+    margin: 0 10px;
+    transition: color 0.3s ease;
+}
+
+.cards-container {
+    display: flex;
+    gap: 20px;
+}
+
+.answer-card {
+    width: 70px;
+    height: 70px;
+    background: white;
+    border: 2px solid #bdc3c7;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.answer-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+}
+
+/* Animations for feedback */
+.error-shake {
+    animation: shake 0.4s;
+    background-color: #fadbd8;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
