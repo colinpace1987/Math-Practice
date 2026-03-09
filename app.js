@@ -1,213 +1,572 @@
-/**
- * Math Practice - Unified Application Script
- * Optimized for categorical navigation and randomized pedagogy.
- */
+// app.js
+const navButtons = [...document.querySelectorAll('.nav-btn')];
+const sectionLabel = document.getElementById('section-label');
+const modeBadge = document.getElementById('mode-badge');
+const problemStepsEl = document.getElementById('problem-steps');
+const optionsEl = document.getElementById('options');
+const statusText = document.getElementById('status-text');
+const nextProblemButton = document.getElementById('next-problem');
 
-const mainContainer = document.querySelector('main');
-const navLinks = document.querySelectorAll('nav a');
+const STATE = {
+  section: 'arithmetic',
+  problem: null,
+  currentStepIndex: 0,
+  customSelections: [],
+};
 
-// --- 1. The Scholarly Repository ---
-const questionPool = [
-    // --- Arithmetic (20 Questions) ---
-    { equation: "1 + 1 = _", answer: 2, options: [1, 2, 3, 4], category: "arithmetic" },
-    { equation: "12 / _ = 3", answer: 4, options: [2, 4, 6, 8], category: "arithmetic" },
-    { equation: "7 + 8 = _", answer: 15, options: [13, 14, 15, 16], category: "arithmetic" },
-    { equation: "9 * 3 = _", answer: 27, options: [24, 26, 27, 30], category: "arithmetic" },
-    { equation: "15 - _ = 7", answer: 8, options: [6, 7, 8, 9], category: "arithmetic" },
-    { equation: "20 / 5 = _", answer: 4, options: [2, 4, 5, 10], category: "arithmetic" },
-    { equation: "_ + 6 = 14", answer: 8, options: [7, 8, 9, 10], category: "arithmetic" },
-    { equation: "11 * 2 = _", answer: 22, options: [20, 21, 22, 24], category: "arithmetic" },
-    { equation: "30 - 12 = _", answer: 18, options: [16, 17, 18, 19], category: "arithmetic" },
-    { equation: "4 * _ = 16", answer: 4, options: [3, 4, 5, 6], category: "arithmetic" },
-    { equation: "50 / 10 = _", answer: 5, options: [2, 5, 10, 15], category: "arithmetic" },
-    { equation: "13 + _ = 20", answer: 7, options: [6, 7, 8, 9], category: "arithmetic" },
-    { equation: "9 - 9 = _", answer: 0, options: [0, 1, 9, 18], category: "arithmetic" },
-    { equation: "_ * 5 = 25", answer: 5, options: [4, 5, 6, 10], category: "arithmetic" },
-    { equation: "18 / 2 = _", answer: 9, options: [7, 8, 9, 10], category: "arithmetic" },
-    { equation: "14 + 14 = _", answer: 28, options: [26, 27, 28, 30], category: "arithmetic" },
-    { equation: "25 - _ = 15", answer: 10, options: [5, 10, 15, 20], category: "arithmetic" },
-    { equation: "6 * 7 = _", answer: 42, options: [36, 40, 42, 48], category: "arithmetic" },
-    { equation: "100 / _ = 4", answer: 25, options: [20, 25, 30, 50], category: "arithmetic" },
-    { equation: "_ + 9 = 18", answer: 9, options: [7, 8, 9, 10], category: "arithmetic" },
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
-    // --- Algebra (20 Questions) ---
-    { equation: "2x = 10, x = _", answer: 5, options: [2, 5, 8, 10], category: "algebra" },
-    { equation: "x - 7 = 3, x = _", answer: 10, options: [4, 7, 10, 13], category: "algebra" },
-    { equation: "3x + 1 = 7, x = _", answer: 2, options: [1, 2, 3, 4], category: "algebra" },
-    { equation: "x / 2 = 6, x = _", answer: 12, options: [3, 6, 10, 12], category: "algebra" },
-    { equation: "5 + x = 12, x = _", answer: 7, options: [5, 6, 7, 8], category: "algebra" },
-    { equation: "4x = 20, x = _", answer: 5, options: [4, 5, 6, 10], category: "algebra" },
-    { equation: "x - 5 = 5, x = _", answer: 10, options: [0, 5, 10, 15], category: "algebra" },
-    { equation: "2x + 4 = 12, x = _", answer: 4, options: [2, 4, 6, 8], category: "algebra" },
-    { equation: "x / 3 = 3, x = _", answer: 9, options: [1, 3, 6, 9], category: "algebra" },
-    { equation: "10 - x = 4, x = _", answer: 6, options: [4, 5, 6, 14], category: "algebra" },
-    { equation: "3x = 15, x = _", answer: 5, options: [3, 4, 5, 6], category: "algebra" },
-    { equation: "x + 9 = 20, x = _", answer: 11, options: [9, 10, 11, 12], category: "algebra" },
-    { equation: "x / 5 = 4, x = _", answer: 20, options: [1, 9, 10, 20], category: "algebra" },
-    { equation: "2x - 2 = 10, x = _", answer: 6, options: [4, 6, 8, 12], category: "algebra" },
-    { equation: "7x = 49, x = _", answer: 7, options: [6, 7, 8, 9], category: "algebra" },
-    { equation: "x + x = 10, x = _", answer: 5, options: [2, 5, 10, 20], category: "algebra" },
-    { equation: "15 / x = 3, x = _", answer: 5, options: [3, 5, 12, 18], category: "algebra" },
-    { equation: "x - 12 = 8, x = _", answer: 20, options: [4, 12, 20, 28], category: "algebra" },
-    { equation: "4x + 2 = 18, x = _", answer: 4, options: [2, 4, 6, 8], category: "algebra" },
-    { equation: "x / 10 = 5, x = _", answer: 50, options: [2, 5, 15, 50], category: "algebra" },
+function shuffle(arr) {
+  return arr
+    .map((value) => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+}
 
-    // --- Geometry (20 Questions) ---
-    { equation: "Sides in a triangle: _", answer: 3, options: [1, 2, 3, 4], category: "geometry" },
-    { equation: "Degrees in a right angle: _", answer: 90, options: [45, 90, 180, 360], category: "geometry" },
-    { equation: "Sides in a square: _", answer: 4, options: [3, 4, 5, 6], category: "geometry" },
-    { equation: "Degrees in a circle: _", answer: 360, options: [90, 180, 270, 360], category: "geometry" },
-    { equation: "Sides in a pentagon: _", answer: 5, options: [4, 5, 6, 8], category: "geometry" },
-    { equation: "Sides in a hexagon: _", answer: 6, options: [5, 6, 7, 8], category: "geometry" },
-    { equation: "Degrees in a straight line: _", answer: 180, options: [90, 120, 180, 360], category: "geometry" },
-    { equation: "Sides in an octagon: _", answer: 8, options: [6, 8, 10, 12], category: "geometry" },
-    { equation: "Sum of triangle angles: _", answer: 180, options: [90, 180, 270, 360], category: "geometry" },
-    { equation: "A square has _ equal sides", answer: 4, options: [2, 3, 4, 0], category: "geometry" },
-    { equation: "An isosceles triangle has _ equal sides", answer: 2, options: [0, 1, 2, 3], category: "geometry" },
-    { equation: "Degrees in a square: _", answer: 360, options: [180, 360, 540, 720], category: "geometry" },
-    { equation: "Sides in a rectangle: _", answer: 4, options: [2, 4, 6, 8], category: "geometry" },
-    { equation: "A cube has _ faces", answer: 6, options: [4, 6, 8, 12], category: "geometry" },
-    { equation: "Radius is _ of diameter", answer: "0.5", options: ["0.25", "0.5", "2", "3"], category: "geometry" },
-    { equation: "A decagon has _ sides", answer: 10, options: [8, 10, 12, 20], category: "geometry" },
-    { equation: "A heptagon has _ sides", answer: 7, options: [6, 7, 8, 9], category: "geometry" },
-    { equation: "Parallel lines meet _ times", answer: 0, options: [0, 1, 2, "Infinity"], category: "geometry" },
-    { equation: "An equilateral triangle has _ equal angles", answer: 3, options: [1, 2, 3, 0], category: "geometry" },
-    { equation: "A cylinder has _ circular bases", answer: 2, options: [1, 2, 3, 4], category: "geometry" }
-];
-
-// --- 2. State Management Variables ---
-let currentCategory = "arithmetic";
-let randomizedQuestions = [];
-let currentQuestionIndex = 0;
-
-/**
- * The Fisher-Yates Shuffle
- * Ensures a truly random distribution of inquiries.
- */
-function shuffleArray(array) {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+function pickDistinctWrongAnswers(correct, count = 3) {
+  const set = new Set();
+  while (set.size < count) {
+    const delta = randInt(-8, 8) || 1;
+    const wrong = correct + delta;
+    if (wrong !== correct) {
+      set.add(wrong);
     }
-    return newArray;
+  }
+  return [...set];
 }
 
-/**
- * Filters the pool by category and shuffles the selection.
- */
-function initializeSession() {
-    // Filter by category (case-insensitive for robustness)
-    const filtered = questionPool.filter(q => q.category === currentCategory.toLowerCase());
-    
-    if (filtered.length === 0) {
-        mainContainer.innerHTML = `<h2 style="text-align:center;">The ${currentCategory} curriculum is forthcoming!</h2>`;
-        return;
-    }
-
-    randomizedQuestions = shuffleArray(filtered);
-    currentQuestionIndex = 0;
-    renderQuestion();
+function formatCoeffX(coeff) {
+  return coeff === 1 ? 'x' : `${coeff}x`;
 }
 
-/**
- * Constructing the User Interface dynamically.
- */
-/**
- * Dynamically constructs the DOM elements for the current challenge,
- * now featuring vertical stacking for algebraic inquiries.
- */
-function renderQuestion() {
-    const q = randomizedQuestions[currentQuestionIndex]; // Corrected reference
-    mainContainer.innerHTML = ''; 
+function makeOperationOptions(answer) {
+  const m = String(answer).match(/^([+\-*/])(\d+)(x?)$/);
+  if (!m) {
+    return shuffle([String(answer)]);
+  }
 
-    // 1. Construct the Equation Display
-    const eqDiv = document.createElement('div');
-    eqDiv.className = 'equation-container';
-    
-    // We replace the comma with a <br> to force the 'x = _' to the next line
-    const formattedEquation = q.equation.replace(', ', '<br>');
-    
-    // We bifurcate the string at the underscore to insert our interactive 'blank'
-    const parts = formattedEquation.split('_');
-    const prefix = parts[0] || '';
-    const suffix = parts[1] || '';
-    
-    eqDiv.innerHTML = `${prefix}<span class="blank">?</span>${suffix}`;
-    mainContainer.appendChild(eqDiv);
+  const op = m[1];
+  const n = Number(m[2]);
+  const xSuffix = m[3] || '';
+  let options;
 
-    // 2. Construct the Answer Card Interface
-    const cardsDiv = document.createElement('div');
-    cardsDiv.className = 'cards-container';
+  if (op === '-') {
+    options = [
+      `-${n}${xSuffix}`,
+      `+${n}${xSuffix}`,
+      `-${n + randInt(1, 4)}${xSuffix}`,
+      `+${n + randInt(1, 4)}${xSuffix}`,
+    ];
+  } else if (op === '+') {
+    options = [
+      `+${n}${xSuffix}`,
+      `-${n}${xSuffix}`,
+      `+${n + randInt(1, 4)}${xSuffix}`,
+      `-${n + randInt(1, 4)}${xSuffix}`,
+    ];
+  } else if (op === '/') {
+    options = [
+      `/${n}`,
+      `*${n}`,
+      `/${n + 1}`,
+      `*${n + 1}`,
+    ];
+  } else {
+    options = [
+      `*${n}`,
+      `/${n}`,
+      `*${n + 1}`,
+      `/${n + 1}`,
+    ];
+  }
 
-    // Randomize the placement of the answer options
-    const shuffledOptions = shuffleArray(q.options);
-
-    shuffledOptions.forEach(val => {
-        const card = document.createElement('div');
-        card.className = 'answer-card';
-        card.textContent = val;
-        card.addEventListener('click', () => handleAttempt(val, q.answer, card));
-        cardsDiv.appendChild(card);
-    });
-
-    mainContainer.appendChild(cardsDiv);
+  return shuffle(options);
 }
 
-/**
- * Validation logic with visual feedback.
- */
-function handleAttempt(selected, correct, cardEl) {
-    const blank = document.querySelector('.blank');
-    
-    if (selected === correct) {
-        blank.textContent = selected;
-        blank.style.color = '#2ecc71'; // Success Green
-        
-        setTimeout(() => {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < randomizedQuestions.length) {
-                renderQuestion();
-            } else {
-                alert(`Commendable! You have completed the ${currentCategory} module.`);
-                initializeSession(); // Re-shuffle and restart the category
-            }
-        }, 1000);
-    } else {
-        cardEl.classList.add('error-shake');
-        blank.style.color = '#e74c3c'; // Error Red
-        
-        setTimeout(() => {
-            blank.style.color = 'inherit';
-            cardEl.classList.remove('error-shake');
-        }, 600);
-    }
+function arithmeticProblem() {
+  const op = ['+', '-', 'x', '/'][randInt(0, 3)];
+  let a;
+  let b;
+  let answer;
+
+  if (op === '+') {
+    a = randInt(3, 30);
+    b = randInt(2, 20);
+    answer = a + b;
+  } else if (op === '-') {
+    a = randInt(10, 40);
+    b = randInt(2, a - 1);
+    answer = a - b;
+  } else if (op === 'x') {
+    a = randInt(2, 12);
+    b = randInt(2, 12);
+    answer = a * b;
+  } else {
+    b = randInt(2, 12);
+    answer = randInt(2, 12);
+    a = b * answer;
+  }
+
+  return {
+    mode: 'single',
+    steps: [
+      {
+        text: `${a} ${op} ${b} = `,
+        answer: String(answer),
+      },
+    ],
+  };
 }
 
-/**
- * Attaching listeners to the navigation tabs.
- */
-function setupNavigation() {
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            
-            // Update state based on the clicked link
-            currentCategory = link.textContent.trim().toLowerCase();
-            
-            // Visual update for the navigation UI
-            document.querySelectorAll('nav li').forEach(li => li.classList.remove('active'));
-            link.parentElement.classList.add('active');
+function algebraTemplateAxPlusB() {
+  const x = randInt(2, 12);
+  const a = randInt(2, 8);
+  const b = randInt(2, 12);
+  const rhs = a * x + b;
 
-            initializeSession();
-        });
-    });
+  return {
+    lines: [
+      `${formatCoeffX(a)} + ${b} = ${rhs}`,
+      `${formatCoeffX(a)} = ${rhs - b}`,
+      `x = ${x}`,
+    ],
+    steps: [
+      { answer: `-${b}` },
+      { answer: `/${a}` },
+    ],
+  };
 }
 
-// --- 3. Ignition ---
-document.addEventListener('DOMContentLoaded', () => {
-    setupNavigation();
-    // Set the initial active state for Arithmetic
-    document.querySelector('nav li').classList.add('active');
-    initializeSession();
+function algebraTemplateAxMinusB() {
+  const x = randInt(2, 12);
+  const a = randInt(2, 8);
+  const b = randInt(2, 12);
+  const rhs = a * x - b;
+
+  return {
+    lines: [
+      `${formatCoeffX(a)} - ${b} = ${rhs}`,
+      `${formatCoeffX(a)} = ${rhs + b}`,
+      `x = ${x}`,
+    ],
+    steps: [
+      { answer: `+${b}` },
+      { answer: `/${a}` },
+    ],
+  };
+}
+
+function algebraTemplateXOverAPlusB() {
+  const a = randInt(2, 6);
+  const q = randInt(2, 10);
+  const x = a * q;
+  const b = randInt(2, 10);
+  const rhs = q + b;
+
+  return {
+    lines: [
+      `x/${a} + ${b} = ${rhs}`,
+      `x/${a} = ${q}`,
+      `x = ${x}`,
+    ],
+    steps: [
+      { answer: `-${b}` },
+      { answer: `*${a}` },
+    ],
+  };
+}
+
+function algebraTemplateGrouped() {
+  const a = randInt(2, 6);
+  const b = randInt(2, 9);
+  const rhs = randInt(3, 10);
+  const x = a * rhs - b;
+
+  return {
+    lines: [
+      `(x + ${b})/${a} = ${rhs}`,
+      `x + ${b} = ${a * rhs}`,
+      `x = ${x}`,
+    ],
+    steps: [
+      { answer: `*${a}` },
+      { answer: `-${b}` },
+    ],
+  };
+}
+
+function algebraTemplateBothSides() {
+  const x = randInt(2, 10);
+  const c = randInt(1, 4);
+  const diff = randInt(1, 5);
+  const a = c + diff;
+  const b = randInt(2, 10);
+  const d = (a - c) * x + b;
+
+  return {
+    lines: [
+      `${formatCoeffX(a)} + ${b} = ${formatCoeffX(c)} + ${d}`,
+      `${formatCoeffX(a - c)} + ${b} = ${d}`,
+      `${formatCoeffX(a - c)} = ${d - b}`,
+      `x = ${x}`,
+    ],
+    steps: [
+      { answer: `-${c}x` },
+      { answer: `-${b}` },
+      { answer: `/${a - c}` },
+    ],
+  };
+}
+
+function algebraTemplateSecondVariable() {
+  const x = randInt(2, 9);
+  const y = randInt(1, 6);
+  const a = randInt(2, 6);
+  const b = randInt(2, 5);
+  const c = a * x + b * y;
+  const by = b * y;
+
+  return {
+    lines: [
+      `${formatCoeffX(a)} + ${b}y = ${c}   (y = ${y})`,
+      `${formatCoeffX(a)} = ${c - by}`,
+      `x = ${x}`,
+    ],
+    steps: [
+      { answer: `-${by}` },
+      { answer: `/${a}` },
+    ],
+  };
+}
+
+function algebraProblem() {
+  const templates = [
+    algebraTemplateAxPlusB,
+    algebraTemplateAxMinusB,
+    algebraTemplateXOverAPlusB,
+    algebraTemplateGrouped,
+    algebraTemplateBothSides,
+    algebraTemplateSecondVariable,
+  ];
+
+  const chosen = templates[randInt(0, templates.length - 1)]();
+  const steps = chosen.steps.map((step) => ({
+    answer: step.answer,
+    options: makeOperationOptions(step.answer),
+  }));
+
+  return {
+    mode: 'multi',
+    customType: 'algebra-sequence',
+    lines: chosen.lines,
+    steps,
+  };
+}
+
+function geometryProblem() {
+  if (Math.random() < 0.5) {
+    const l = randInt(3, 15);
+    const w = randInt(3, 12);
+    return {
+      mode: 'single',
+      steps: [
+        {
+          text: `Rectangle area: ${l} x ${w} = `,
+          answer: String(l * w),
+        },
+      ],
+    };
+  }
+
+  const base = randInt(4, 14);
+  const height = randInt(4, 14);
+  const product = base * height;
+  return {
+    mode: 'multi',
+    steps: [
+      {
+        text: `Triangle area: A = 1/2bh, first compute b x h = `,
+        answer: String(product),
+      },
+      {
+        text: `Now A = 1/2 x ${product} = `,
+        answer: String(product / 2),
+      },
+    ],
+  };
+}
+
+function generateProblem(section) {
+  if (section === 'algebra') return algebraProblem();
+  if (section === 'geometry') return geometryProblem();
+  return arithmeticProblem();
+}
+
+function sectionTitle(section) {
+  return section.charAt(0).toUpperCase() + section.slice(1);
+}
+
+function buildOptions(correctValue) {
+  const numeric = Number(correctValue);
+  if (Number.isNaN(numeric)) {
+    return shuffle([String(correctValue)]);
+  }
+
+  const wrong = pickDistinctWrongAnswers(numeric, 3);
+  return shuffle([numeric, ...wrong]).map((value) => String(value));
+}
+
+function addEquationLine(text, hidden = false, green = false) {
+  const line = document.createElement('div');
+  line.className = `equation-line${hidden ? ' step-hidden' : ''}${green ? ' correct' : ''}`;
+  line.textContent = text;
+  problemStepsEl.appendChild(line);
+}
+
+function addDualBlankLine(stepIndex, hidden = false) {
+  const line = document.createElement('div');
+  line.className = `equation-line${hidden ? ' step-hidden' : ''}`;
+
+  const blankA = document.createElement('span');
+  blankA.className = 'blank';
+  blankA.dataset.blankIndex = String(stepIndex);
+  blankA.dataset.slot = '0';
+
+  const spacer = document.createElement('span');
+  spacer.textContent = '   ';
+
+  const blankB = document.createElement('span');
+  blankB.className = 'blank';
+  blankB.dataset.blankIndex = String(stepIndex);
+  blankB.dataset.slot = '1';
+
+  const selected = STATE.customSelections[stepIndex];
+  if (selected) {
+    blankA.textContent = selected;
+    blankB.textContent = selected;
+    blankA.classList.add('filled', 'correct');
+    blankB.classList.add('filled', 'correct');
+  } else {
+    blankA.textContent = '';
+    blankB.textContent = '';
+  }
+
+  line.append(blankA, spacer, blankB);
+  problemStepsEl.appendChild(line);
+}
+
+function renderAlgebraSequence() {
+  const { lines, steps } = STATE.problem;
+
+  for (let i = 0; i < steps.length; i += 1) {
+    const showStage = STATE.currentStepIndex >= i;
+    addEquationLine(lines[i], !showStage);
+    addDualBlankLine(i, !showStage);
+  }
+
+  const showFinal = STATE.currentStepIndex >= steps.length;
+  addEquationLine(lines[lines.length - 1], !showFinal, showFinal);
+}
+
+function renderStandardProblem() {
+  const { steps } = STATE.problem;
+
+  steps.forEach((step, index) => {
+    const line = document.createElement('div');
+    line.className = `equation-line${index > STATE.currentStepIndex ? ' step-hidden' : ''}`;
+    line.dataset.index = String(index);
+
+    const textSpan = document.createElement('span');
+    textSpan.textContent = step.text;
+
+    const blank = document.createElement('span');
+    blank.className = 'blank';
+    blank.dataset.blankIndex = String(index);
+    blank.textContent = '';
+
+    line.append(textSpan, blank);
+    problemStepsEl.appendChild(line);
+  });
+}
+
+function renderProblem() {
+  const { mode, customType } = STATE.problem;
+
+  sectionLabel.textContent = sectionTitle(STATE.section);
+  modeBadge.textContent = mode === 'multi' ? 'Multi Step' : 'Single Step';
+
+  problemStepsEl.innerHTML = '';
+
+  if (customType === 'algebra-sequence') {
+    renderAlgebraSequence();
+  } else {
+    renderStandardProblem();
+  }
+
+  renderOptions();
+}
+
+function getCurrentStep() {
+  return STATE.problem.steps[STATE.currentStepIndex] || null;
+}
+
+function renderOptions() {
+  const step = getCurrentStep();
+
+  optionsEl.innerHTML = '';
+  if (!step) {
+    return;
+  }
+
+  const options = step.options || buildOptions(step.answer);
+  options.forEach((opt) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'option-btn';
+    btn.textContent = String(opt);
+    btn.dataset.value = String(opt);
+    btn.setAttribute('role', 'listitem');
+    btn.addEventListener('click', () => handleOptionSelect(btn, step));
+    optionsEl.appendChild(btn);
+  });
+}
+
+function lockOptions() {
+  [...optionsEl.querySelectorAll('.option-btn')].forEach((btn) => {
+    btn.disabled = true;
+  });
+}
+
+function unlockOptions() {
+  [...optionsEl.querySelectorAll('.option-btn')].forEach((btn) => {
+    btn.disabled = false;
+  });
+}
+
+function getBlanks(stepIndex) {
+  return [...problemStepsEl.querySelectorAll(`.blank[data-blank-index="${stepIndex}"]`)];
+}
+
+function revealNextStep() {
+  const nextLine = problemStepsEl.querySelector(`.equation-line[data-index="${STATE.currentStepIndex}"]`);
+  if (nextLine) {
+    nextLine.classList.remove('step-hidden');
+  }
+}
+
+function handleAlgebraSequenceSelection(button, step) {
+  const selected = button.dataset.value;
+  const isCorrect = selected === String(step.answer);
+  const blanks = getBlanks(STATE.currentStepIndex);
+
+  lockOptions();
+
+  blanks.forEach((blank) => {
+    blank.textContent = selected;
+    blank.classList.add('filled');
+  });
+
+  if (isCorrect) {
+    blanks.forEach((blank) => blank.classList.add('correct'));
+    button.classList.add('correct');
+    statusText.textContent = 'Correct.';
+    STATE.customSelections[STATE.currentStepIndex] = selected;
+
+    setTimeout(() => {
+      const hasMore = STATE.currentStepIndex < STATE.problem.steps.length - 1;
+      if (hasMore) {
+        STATE.currentStepIndex += 1;
+        renderProblem();
+        statusText.textContent = 'Nice. Solve the next step.';
+      } else {
+        STATE.currentStepIndex = STATE.problem.steps.length;
+        renderProblem();
+        statusText.textContent = 'Great work. Tap "New Problem" for another one.';
+      }
+    }, 650);
+  } else {
+    blanks.forEach((blank) => blank.classList.add('wrong'));
+    button.classList.add('wrong');
+    statusText.textContent = 'Not quite. Try again.';
+
+    setTimeout(() => {
+      blanks.forEach((blank) => {
+        blank.textContent = '';
+        blank.classList.remove('filled', 'wrong');
+      });
+      button.classList.remove('wrong');
+      unlockOptions();
+    }, 700);
+  }
+}
+
+function handleStandardSelection(button, step) {
+  const selected = button.dataset.value;
+  const isCorrect = selected === String(step.answer);
+  const blank = getBlanks(STATE.currentStepIndex)[0];
+
+  lockOptions();
+
+  blank.textContent = selected;
+  blank.classList.add('filled');
+
+  if (isCorrect) {
+    blank.classList.add('correct');
+    button.classList.add('correct');
+    statusText.textContent = 'Correct.';
+
+    setTimeout(() => {
+      const hasMore = STATE.currentStepIndex < STATE.problem.steps.length - 1;
+      if (hasMore) {
+        STATE.currentStepIndex += 1;
+        revealNextStep();
+        renderOptions();
+        statusText.textContent = 'Nice. Solve the next step.';
+      } else {
+        statusText.textContent = 'Great work. Tap "New Problem" for another one.';
+      }
+    }, 650);
+  } else {
+    blank.classList.add('wrong');
+    button.classList.add('wrong');
+    statusText.textContent = 'Not quite. Try again.';
+
+    setTimeout(() => {
+      blank.textContent = '';
+      blank.classList.remove('filled', 'wrong');
+      button.classList.remove('wrong');
+      unlockOptions();
+    }, 700);
+  }
+}
+
+function handleOptionSelect(button, step) {
+  if (STATE.problem.customType === 'algebra-sequence') {
+    handleAlgebraSequenceSelection(button, step);
+  } else {
+    handleStandardSelection(button, step);
+  }
+}
+
+function startNewProblem() {
+  STATE.problem = generateProblem(STATE.section);
+  STATE.currentStepIndex = 0;
+  STATE.customSelections = [];
+  renderProblem();
+  statusText.textContent = 'Choose an option to fill the blank.';
+}
+
+navButtons.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    navButtons.forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    STATE.section = btn.dataset.section;
+    startNewProblem();
+  });
 });
+
+nextProblemButton.addEventListener('click', startNewProblem);
+
+startNewProblem();

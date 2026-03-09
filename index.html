@@ -1,36 +1,48 @@
-<!DOCTYPE html>
+<!-- index.html -->
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <!-- Link to external CSS -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Favicon -->
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Math Practice</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <header>
-        <h1>Math Practice</h1>
-
-        <nav>
-            <ul>
-                <li><a href="#">Arithmetic</a></li>
-                <li id = "algebra"><a href="#">Algebra</a></li>
-                <li><a href="#">Geometry</a></li>
-            </ul>
+  <div class="app-shell">
+    <header class="topbar">
+      <h1>Math Practice</h1>
+      <button id="next-problem" class="ghost-btn" type="button">New Problem</button>
     </header>
 
-    <main>
-        
+    <nav class="section-nav" aria-label="Math sections">
+      <button class="nav-btn active" data-section="arithmetic" type="button">Arithmetic</button>
+      <button class="nav-btn" data-section="algebra" type="button">Algebra</button>
+      <!-- <button class="nav-btn" data-section="geometry" type="button">Geometry</button> -->
+    </nav>
+
+    <main class="practice-area">
+      <section class="problem-card">
+        <div class="card-header">
+          <span id="mode-badge" class="mode-badge">Single Step</span>
+          <span id="section-label" class="section-label">Arithmetic</span>
+        </div>
+
+        <div id="problem-steps" class="problem-steps" aria-live="polite"></div>
+
+        <div class="feedback-row">
+          <p id="status-text" class="status-text">Choose an option to fill the blank.</p>
+        </div>
+      </section>
+
+      <section class="answers-panel">
+        <div id="options" class="options-grid" role="list"></div>
+      </section>
     </main>
+  </div>
 
-    <footer>
-        <p>2026 MathPractice</p>
-    </footer>
-
-    <!-- External JavaScript -->
-    <script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
